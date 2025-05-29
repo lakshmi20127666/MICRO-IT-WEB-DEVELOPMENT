@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Currency Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .converter {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 350px;
+    }
+
+    .converter h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .converter input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="converter">
+    <h2>Currency Converter</h2>
+    <input type="number" id="amount" placeholder="Enter amount" />
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    <button onclick="convert()">Convert</button>
+    <div class="result" id="result">Converted amount: --</div>
+  </div>
+
+  <script>
+    const apiUrl = "https://api.exchangerate-api.com/v4/latest/USD";
+    let rates = {};
+
+    // Fetch currency rates
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        rates = data.rates;
+        populateCurrencies(Object.keys(rates));
+      });
+
+    function populateCurrencies(currencyList) {
+      const from = document.getElementById('fromCurrency');
+      const to = document.getElementById('toCurrency');
+      currencyList.forEach(curr => {
+        const option1 = document.createElement('option');
+        option1.value = curr;
+        option1.textContent = curr;
+        from.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = curr;
+        option2.textContent = curr;
+        to.appendChild(option2);
+      });
+      from.value = 'USD';
+      to.value = 'INR';
+    }
+
+    function convert() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+
+      if (!amount || amount < 0) {
+        alert("Enter a valid amount");
+        return;
+      }
+
+      const usdToFrom = rates[from];
+      const usdToTo = rates[to];
+      const convertedAmount = (amount / usdToFrom) * usdToTo;
+
+      document.getElementById('result').textContent = 
+        `Converted amount: ${convertedAmount.toFixed(2)} ${to}`;
+    }
+  </script>
+</body>
+</html>
